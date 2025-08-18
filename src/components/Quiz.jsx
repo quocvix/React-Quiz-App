@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const quizData = [
     {
@@ -85,17 +85,56 @@ const quizData = [
 ];
 
 const Quiz = () => {
+    const [selectedOption, setSelectedOption] = useState("");
+
+    const [userAnswers, setUserAnswers] = useState(
+        Array.from({length: quizData.length})
+    );
+
+    const [currentQuestion, setCurrentQuestion] = useState(0);
+
+    const handleSelectedOption = (option, index) => {
+        setSelectedOption(option);
+
+        const newUserAnswers = [...userAnswers];
+        newUserAnswers[currentQuestion] = index;
+        setUserAnswers(newUserAnswers)
+    };
+
+    const goNext = () => {
+        setCurrentQuestion(currentQuestion + 1);
+    }
+
+    const goBack = () => {
+        setCurrentQuestion(currentQuestion - 1);
+    }
+
     return (
         <div>
-            <h2>Câu 1</h2>
-            <p className="question">{quizData[0].question}</p>
-            {quizData[0].options.map((option) => (
-                <button className="option">{option}</button>
+            <h2>Câu {currentQuestion + 1}</h2>
+            <p className="question">{quizData[currentQuestion].question}</p>
+
+            {quizData[currentQuestion].options.map((option, index) => (
+                <button
+                    key={option}
+                    className="option"
+                    onClick={() => handleSelectedOption(option, index)}
+                >
+                    {option}
+                </button>
             ))}
 
+            {selectedOption === quizData[currentQuestion].answer ? (
+                <p className="correct-answer">Câu trả lời chính xác</p>
+            ) : (
+                <p className="incorrect-answer">Câu trả lời chưa chính xác</p>
+            )}
+
+            <p>Câu trả lời của bạn là: {selectedOption}</p>
+
             <div className="nav-buttons">
-                <button>Quay Lại</button>
-                <button>Kế tiếp</button>
+                <button onClick={goBack}>Quay Lại</button>
+                <button onClick={goNext}>Kế tiếp</button>
             </div>
         </div>
     );
