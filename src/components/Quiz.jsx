@@ -87,9 +87,7 @@ const quizData = [
 const Quiz = () => {
     const [selectedOption, setSelectedOption] = useState("");
 
-    const [userAnswers, setUserAnswers] = useState(
-        Array.from({length: quizData.length})
-    );
+    const [userAnswers, setUserAnswers] = useState(Array.from({ length: quizData.length }));
 
     const [currentQuestion, setCurrentQuestion] = useState(0);
 
@@ -98,16 +96,19 @@ const Quiz = () => {
 
         const newUserAnswers = [...userAnswers];
         newUserAnswers[currentQuestion] = index;
-        setUserAnswers(newUserAnswers)
+        setUserAnswers(newUserAnswers);
+        console.log(userAnswers);
     };
 
     const goNext = () => {
-        setCurrentQuestion(currentQuestion + 1);
-    }
+        setCurrentQuestion((prev) => prev + 1);
+    };
 
     const goBack = () => {
-        setCurrentQuestion(currentQuestion - 1);
-    }
+        if (currentQuestion > 0) {
+            setCurrentQuestion((prev) => prev - 1);
+        }
+    };
 
     return (
         <div>
@@ -117,7 +118,8 @@ const Quiz = () => {
             {quizData[currentQuestion].options.map((option, index) => (
                 <button
                     key={option}
-                    className="option"
+                    className={`option ${selectedOption === option ? "selected" : ""}`}
+                    disabled={!!selectedOption && selectedOption !== option}
                     onClick={() => handleSelectedOption(option, index)}
                 >
                     {option}
