@@ -86,7 +86,7 @@ const quizData = [
 ];
 
 const Quiz = () => {
-    const [selectedOption, setSelectedOption] = useState("");
+    const [optionSelected, setOptionSelected] = useState("");
 
     const [userAnswers, setUserAnswers] = useState(Array.from({ length: quizData.length }));
 
@@ -97,7 +97,12 @@ const Quiz = () => {
     const [score, setScore] = useState(0);
 
     const handleSelectedOption = (option, index) => {
-        setSelectedOption(option);
+        // tính điểm
+        if (option === quizData[currentQuestion].answer) {
+            setScore((prev) => prev + 1);
+        }
+
+        setOptionSelected(option);
 
         const newUserAnswers = [...userAnswers];
         newUserAnswers[currentQuestion] = index;
@@ -118,29 +123,39 @@ const Quiz = () => {
         }
     };
 
+    const restartQuiz = () => {
+        setCurrentQuestion(0);
+        setIsQuizEnded(false);
+        setOptionSelected("");
+        setScore(0);
+        setUserAnswers(Array.from({ length: quizData.length }));
+    };
+
+    const rewatchQuiz = () => {
+        setCurrentQuestion(0);
+        setIsQuizEnded(false);
+    };
+
     useEffect(() => {
         const answer = Number(userAnswers[currentQuestion]);
         const pastOptionSelected = quizData[currentQuestion].options[answer];
 
         if (answer !== undefined) {
-            setSelectedOption(pastOptionSelected);
+            setOptionSelected(pastOptionSelected);
         } else {
-            setSelectedOption("");
+            setOptionSelected("");
         }
     }, [currentQuestion, userAnswers]);
 
-    useEffect(() => {
-        if (selectedOption === quizData[currentQuestion ]) {
-            
-        }
-    
-        return () => {
-            
-        }
-    }, []);
-
     if (isQuizEnded) {
-        return <Results score="" totalQuestionNum="10"/>;
+        return (
+            <Results
+                score={score}
+                totalQuestionNum={quizData.length}
+                restartQuiz={restartQuiz}
+                rewatchQuiz={rewatchQuiz}
+            />
+        );
     }
 
     return (
@@ -151,30 +166,30 @@ const Quiz = () => {
             {quizData[currentQuestion].options.map((option, index) => (
                 <button
                     key={option}
-                    className={`option ${selectedOption === option ? "selected" : ""}`}
-                    disabled={!!selectedOption && selectedOption !== option}
+                    className={`option ${optionSelected === option ? "selected" : ""}`}
+                    disabled={!!optionSelected && optionSelected !== option}
                     onClick={() => handleSelectedOption(option, index)}
                 >
                     {option}
                 </button>
             ))}
 
-            {selectedOption ? (
-                selectedOption === quizData[currentQuestion].answer ? (
-                    <p className="correct-answer">Câu trả lời chính xác</p>
+            {optionSelected ? (
+                optionSelected === quizData[currentQuestion].answer ? (
+                    <p className="correct-answer">Câu trả lời của bạn chính xác</p>
                 ) : (
-                    <p className="incorrect-answer">Câu trả lời chưa chính xác</p>
+                    <p className="incorrect-answer">Câu trả lời của bạn chưa chính xác</p>
                 )
             ) : (
                 ""
             )}
 
             <div className="nav-buttons">
-                <button onClick={goBack} disabled={currentQuestion == 0}>
+                <button onClick={goBack} disabled={currentQuestion === 0}>
                     Quay Lại
                 </button>
-                <button onClick={goNext} disabled={!selectedOption}>
-                    {currentQuestion === quizData.length - 1 ? "Hoàn Thành Quiz" : "Kế tiếp"}
+                <button onClick={goNext} disabled={!optionSelected}>
+                    {currentQuestion === quizData.length - 1 ? "Hoàn Thành Quiz" : "Kế Tiếp"}
                 </button>
             </div>
         </div>
