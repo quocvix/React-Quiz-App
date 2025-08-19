@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Results from "./Results";
 
 const quizData = [
     {
@@ -91,17 +92,24 @@ const Quiz = () => {
 
     const [currentQuestion, setCurrentQuestion] = useState(0);
 
+    const [isQuizEnded, setIsQuizEnded] = useState(false);
+
+    const [score, setScore] = useState(0);
+
     const handleSelectedOption = (option, index) => {
         setSelectedOption(option);
 
         const newUserAnswers = [...userAnswers];
         newUserAnswers[currentQuestion] = index;
         setUserAnswers(newUserAnswers);
-        console.log(userAnswers);
     };
 
     const goNext = () => {
-        setCurrentQuestion((prev) => prev + 1);
+        if (currentQuestion === quizData.length - 1) {
+            setIsQuizEnded(true);
+        } else {
+            setCurrentQuestion((prev) => prev + 1);
+        }
     };
 
     const goBack = () => {
@@ -109,6 +117,31 @@ const Quiz = () => {
             setCurrentQuestion((prev) => prev - 1);
         }
     };
+
+    useEffect(() => {
+        const answer = Number(userAnswers[currentQuestion]);
+        const pastOptionSelected = quizData[currentQuestion].options[answer];
+
+        if (answer !== undefined) {
+            setSelectedOption(pastOptionSelected);
+        } else {
+            setSelectedOption("");
+        }
+    }, [currentQuestion, userAnswers]);
+
+    useEffect(() => {
+        if (selectedOption === quizData[currentQuestion ]) {
+            
+        }
+    
+        return () => {
+            
+        }
+    }, []);
+
+    if (isQuizEnded) {
+        return <Results score="" totalQuestionNum="10"/>;
+    }
 
     return (
         <div>
@@ -126,17 +159,23 @@ const Quiz = () => {
                 </button>
             ))}
 
-            {selectedOption === quizData[currentQuestion].answer ? (
-                <p className="correct-answer">Câu trả lời chính xác</p>
+            {selectedOption ? (
+                selectedOption === quizData[currentQuestion].answer ? (
+                    <p className="correct-answer">Câu trả lời chính xác</p>
+                ) : (
+                    <p className="incorrect-answer">Câu trả lời chưa chính xác</p>
+                )
             ) : (
-                <p className="incorrect-answer">Câu trả lời chưa chính xác</p>
+                ""
             )}
 
-            <p>Câu trả lời của bạn là: {selectedOption}</p>
-
             <div className="nav-buttons">
-                <button onClick={goBack}>Quay Lại</button>
-                <button onClick={goNext}>Kế tiếp</button>
+                <button onClick={goBack} disabled={currentQuestion == 0}>
+                    Quay Lại
+                </button>
+                <button onClick={goNext} disabled={!selectedOption}>
+                    {currentQuestion === quizData.length - 1 ? "Hoàn Thành Quiz" : "Kế tiếp"}
+                </button>
             </div>
         </div>
     );
